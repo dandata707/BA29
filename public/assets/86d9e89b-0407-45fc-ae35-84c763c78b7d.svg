@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="SVG">
+<path id="Vector" d="M40 14L62 25V51L40 62L18 51V25L40 14V14" fill="#EFF4FF" stroke-width="2.5" stroke-linejoin="round" stroke="#B7C4FF"/>
+<path id="Vector_2" d="M40 14V62" stroke-width="2.2" stroke-linecap="round" stroke="#B7C4FF"/>
+<path id="Vector_3" d="M62 25L40 37L18 25" stroke-width="2.2" stroke-linejoin="round" stroke="#B7C4FF"/>
+<path id="Vector_4" d="M29 19.5L30.375 20.25M51 31.5L49.625 30.75M33.125 21.75L35.875 23.25M38.625 24.75L41.375 26.25M44.125 27.75L46.875 29.25" stroke-width="2.5" stroke-linecap="round" stroke="#1D4ED8"/>
+<path id="Vector_5" d="M18 25L8 20L28 9L39 14.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#1D4ED8"/>
+<path id="Vector_6" d="M62 25L72 20L52 9L41 14.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#1D4ED8"/>
+<path id="Vector_7" d="M37 37C37 38.6557 38.3443 40 40 40C41.6557 40 43 38.6557 43 37C43 35.3443 41.6557 34 40 34C38.3443 34 37 35.3443 37 37V37" fill="#1D4ED8"/>
+<path id="Vector_8" d="M40 43V48" stroke-width="2" stroke-linecap="round" stroke="#1D4ED8"/>
+</g>
+</svg>

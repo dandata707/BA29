@@ -1,0 +1,618 @@
+[
+  {
+    "id": "32:292",
+    "name": "2",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "32-292"
+  },
+  {
+    "id": "34:384",
+    "name": "3",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "34-384"
+  },
+  {
+    "id": "64:2",
+    "name": "4",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "64-2"
+  },
+  {
+    "id": "67:1153",
+    "name": "5",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "67-1153"
+  },
+  {
+    "id": "65:404",
+    "name": "6",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "65-404"
+  },
+  {
+    "id": "66:575",
+    "name": "7",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1392,
+    "file": "66-575"
+  },
+  {
+    "id": "67:898",
+    "name": "8",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1392,
+    "file": "67-898"
+  },
+  {
+    "id": "67:1291",
+    "name": "Html → Body",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1128,
+    "file": "67-1291"
+  },
+  {
+    "id": "70:1485",
+    "name": "1",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "70-1485"
+  },
+  {
+    "id": "133:2",
+    "name": "Html → Body",
+    "page": "28:6",
+    "width": 1280,
+    "height": 1024,
+    "file": "133-2"
+  },
+  {
+    "id": "143:23696",
+    "name": "Thực hiện thanh lý tài sản - BA Asset",
+    "page": "90:2",
+    "width": 1280,
+    "height": 998.09375,
+    "file": "143-23696"
+  },
+  {
+    "id": "143:24000",
+    "name": "Đóng và lưu hồ sơ - BA Asset",
+    "page": "90:2",
+    "width": 1280,
+    "height": 713,
+    "file": "143-24000"
+  },
+  {
+    "id": "143:24657",
+    "name": "Danh sách Tờ trình chờ phê duyệt - BA Asset",
+    "page": "90:2",
+    "width": 1280,
+    "height": 679,
+    "file": "143-24657"
+  },
+  {
+    "id": "143:24897",
+    "name": "Lập tờ trình thanh lý tài sản",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1253.719970703125,
+    "file": "143-24897"
+  },
+  {
+    "id": "143:25283",
+    "name": "Popup Thêm tài sản vào danh sách đề nghị thanh lý",
+    "page": "90:2",
+    "width": 1280,
+    "height": 643,
+    "file": "143-25283"
+  },
+  {
+    "id": "143:25496",
+    "name": "Danh sách đề nghị đủ điều kiện lập tờ trình thanh lý",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1018.5,
+    "file": "143-25496"
+  },
+  {
+    "id": "143:26280",
+    "name": "Thực hiện thanh lý tài sản",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1513.719970703125,
+    "file": "143-26280"
+  },
+  {
+    "id": "143:26779",
+    "name": "Phê duyệt thanh lý tài sản",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1378,
+    "file": "143-26779"
+  },
+  {
+    "id": "143:27216",
+    "name": "Danh sách Đề nghị chờ tiếp nhận - BA Asset",
+    "page": "90:2",
+    "width": 1280,
+    "height": 515.25,
+    "file": "143-27216"
+  },
+  {
+    "id": "145:27645",
+    "name": "Danh sách Đề nghị thanh lý - BA Asset",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "145-27645"
+  },
+  {
+    "id": "145:27928",
+    "name": "Lập đề nghị thanh lý tài sản",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1126.5,
+    "file": "145-27928"
+  },
+  {
+    "id": "149:28340",
+    "name": "Tiếp nhận kiểm tra và thẩm định",
+    "page": "90:2",
+    "width": 1280,
+    "height": 1367,
+    "file": "149-28340"
+  },
+  {
+    "id": "87:2",
+    "name": "Quản lý tài sản - Phiếu yêu cầu cấp phát của tôi",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "87-2"
+  },
+  {
+    "id": "87:339",
+    "name": "Quản lý tài sản - Menu thao tác phiếu",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "87-339"
+  },
+  {
+    "id": "87:707",
+    "name": "Tạo phiếu yêu cầu cấp phát - AssetFlow",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1542.5,
+    "file": "87-707"
+  },
+  {
+    "id": "87:1419",
+    "name": "PopUp Xem lý do từ chối - AssetFlow",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "87-1419"
+  },
+  {
+    "id": "87:2907",
+    "name": "Html → Body",
+    "page": "79:2",
+    "width": 1280,
+    "height": 882,
+    "file": "87-2907"
+  },
+  {
+    "id": "87:3277",
+    "name": "Html → Body",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1316,
+    "file": "87-3277"
+  },
+  {
+    "id": "123:414",
+    "name": "Chi tiết phiếu yêu cầu cấp phát - Tạo biên bản",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1331,
+    "file": "123-414"
+  },
+  {
+    "id": "123:801",
+    "name": "Biên bản bàn giao tài sản - AssetFlow",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1144,
+    "file": "123-801"
+  },
+  {
+    "id": "123:1142",
+    "name": "Danh sách biên bản bàn giao tài sản - AssetFlow",
+    "page": "79:2",
+    "width": 1280,
+    "height": 763,
+    "file": "123-1142"
+  },
+  {
+    "id": "123:1530",
+    "name": "PopUp Xác nhận mật khẩu - Biên bản bàn giao",
+    "page": "79:2",
+    "width": 1280,
+    "height": 1144,
+    "file": "123-1530"
+  },
+  {
+    "id": "55:6",
+    "name": "DS Yêu cầu điều chuyển tài sản",
+    "page": "55:2",
+    "width": 1280,
+    "height": 985,
+    "file": "55-6"
+  },
+  {
+    "id": "55:312",
+    "name": "Tạo yêu cầu điều chuyển",
+    "page": "55:2",
+    "width": 1280,
+    "height": 961,
+    "file": "55-312"
+  },
+  {
+    "id": "55:516",
+    "name": "Chi tiết và Xử lý yêu cầu điều chuyển",
+    "page": "55:2",
+    "width": 1280,
+    "height": 1005,
+    "file": "55-516"
+  },
+  {
+    "id": "55:740",
+    "name": "Lập biên bản bàn giao",
+    "page": "55:2",
+    "width": 1280,
+    "height": 1507,
+    "file": "55-740"
+  },
+  {
+    "id": "55:1077",
+    "name": "Ghi nhận xác nhận bàn giao và tiếp nhận",
+    "page": "55:2",
+    "width": 1280,
+    "height": 1061,
+    "file": "55-1077"
+  },
+  {
+    "id": "40:12",
+    "name": "Html → Body",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-12"
+  },
+  {
+    "id": "40:5041",
+    "name": "Danh sách tài sản - Trống không có quyền tạo (State B)",
+    "page": "40:2",
+    "width": 1294,
+    "height": 1024,
+    "file": "40-5041"
+  },
+  {
+    "id": "40:5218",
+    "name": "Danh sách tài sản - Lỗi tải dữ liệu (State C)",
+    "page": "40:2",
+    "width": 1294,
+    "height": 1024,
+    "file": "40-5218"
+  },
+  {
+    "id": "40:5469",
+    "name": "Danh sách tài sản - Trạng thái trống (State A)",
+    "page": "40:2",
+    "width": 1294,
+    "height": 1024,
+    "file": "40-5469"
+  },
+  {
+    "id": "40:5625",
+    "name": "Danh sách tài sản - Đang tải (Skeleton Loading)",
+    "page": "40:2",
+    "width": 1294,
+    "height": 1024,
+    "file": "40-5625"
+  },
+  {
+    "id": "40:6017",
+    "name": "Danh sách tài sản - Kết quả đã lọc (State C)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1038,
+    "file": "40-6017"
+  },
+  {
+    "id": "40:6328",
+    "name": "Danh sách tài sản - Không có kết quả (State A)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-6328"
+  },
+  {
+    "id": "40:6576",
+    "name": "Danh sách tài sản - Khoảng ngày không hợp lệ (State B)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1150,
+    "file": "40-6576"
+  },
+  {
+    "id": "40:7095",
+    "name": "Html → Body",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1621,
+    "file": "40-7095"
+  },
+  {
+    "id": "40:7463",
+    "name": "Thêm mới tài sản - Lỗi xác thực dữ liệu (State A)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1546,
+    "file": "40-7463"
+  },
+  {
+    "id": "40:7826",
+    "name": "Thêm mới tài sản - Thiếu trường bắt buộc (State B)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1660,
+    "file": "40-7826"
+  },
+  {
+    "id": "40:8242",
+    "name": "Thêm mới tài sản - Hết hạn phiên đăng nhập (State D)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1078,
+    "file": "40-8242"
+  },
+  {
+    "id": "40:8634",
+    "name": "Thêm mới tài sản - Thành công sau khi lưu (State A)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056,
+    "file": "40-8634"
+  },
+  {
+    "id": "40:8902",
+    "name": "Thêm mới tài sản - Lưu và thêm tài sản khác (State B)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1519.5,
+    "file": "40-8902"
+  },
+  {
+    "id": "40:9311",
+    "name": "Thêm mới tài sản - Xác nhận hủy (State C)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-9311"
+  },
+  {
+    "id": "40:9486",
+    "name": "LỚP PHỦ BACKDROP (Chặn tương tác form, làm mờ không gian)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-9486"
+  },
+  {
+    "id": "40:9591",
+    "name": "Thêm mới tài sản - Không có quyền thực hiện (State A)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-9591"
+  },
+  {
+    "id": "40:9777",
+    "name": "Danh sách tài sản - Quyền chỉ xem và in QR (State C)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1414,
+    "file": "40-9777"
+  },
+  {
+    "id": "40:10317",
+    "name": "Thêm mới tài sản - Chưa có danh mục (State B)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1687,
+    "file": "40-10317"
+  },
+  {
+    "id": "40:10728",
+    "name": "Sửa thông tin tài sản - TS-LAP-2026-00012",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1649,
+    "file": "40-10728"
+  },
+  {
+    "id": "40:11112",
+    "name": "Xóa tài sản - Xác nhận (State 1: Chưa nhập lý do)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1066,
+    "file": "40-11112"
+  },
+  {
+    "id": "40:11487",
+    "name": "Xóa tài sản - Đã nhập lý do (State 2: Sẵn sàng xóa)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-11487"
+  },
+  {
+    "id": "40:11762",
+    "name": "Xóa tài sản - Lỗi bắt buộc (State 3: Thiếu lý do xóa)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-11762"
+  },
+  {
+    "id": "40:12041",
+    "name": "Danh sách tài sản - Sau khi xóa thành công (Success Toast)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-12041"
+  },
+  {
+    "id": "40:12591",
+    "name": "Xóa tài sản - Dữ liệu đã thay đổi (State E3)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1024,
+    "file": "40-12591"
+  },
+  {
+    "id": "40:12916",
+    "name": "Xóa tài sản - Không thể xóa do đã phát sinh giao dịch (State E1)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1144,
+    "file": "40-12916"
+  },
+  {
+    "id": "40:13282",
+    "name": "Xóa tài sản - Lỗi hệ thống khi xóa (State E4)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1583,
+    "file": "40-13282"
+  },
+  {
+    "id": "40:13912",
+    "name": "Danh sách tài sản - Đã tạo tem QR sau khi in (Success Toast)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1298,
+    "file": "40-13912"
+  },
+  {
+    "id": "40:14479",
+    "name": "In QR tài sản - Hộp thoại cấu hình và xem trước tem",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-14479"
+  },
+  {
+    "id": "40:14928",
+    "name": "Danh sách tài sản - Sau khi xuất PDF tem QR (Download Toast)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1282,
+    "file": "40-14928"
+  },
+  {
+    "id": "40:15493",
+    "name": "In QR tài sản - In lại có tài sản đã in trước đó (State A1)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-15493"
+  },
+  {
+    "id": "40:15970",
+    "name": "In QR tài sản - Lỗi thiếu lý do in lại (State E4)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-15970"
+  },
+  {
+    "id": "40:16438",
+    "name": "In QR tài sản - Lỗi kết nối máy in (State E2)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-16438"
+  },
+  {
+    "id": "40:16900",
+    "name": "In QR tài sản - Vượt quá số lượng 100 tem (State E5)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-16900"
+  },
+  {
+    "id": "40:17389",
+    "name": "In QR tài sản - Chưa chọn tài sản (State E1)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-17389"
+  },
+  {
+    "id": "40:17637",
+    "name": "In QR tài sản - Đã loại tài sản đã xóa khỏi lượt in (State E3)",
+    "page": "40:2",
+    "width": 1280,
+    "height": 1056.5,
+    "file": "40-17637"
+  },
+  {
+    "id": "87:539",
+    "name": "Menu thao tác phiếu",
+    "page": "79:2",
+    "width": 192,
+    "height": 191.5,
+    "file": "87-539"
+  },
+  {
+    "id": "87:4029",
+    "name": "Xác nhận xử lý phiếu",
+    "page": "79:2",
+    "width": 560,
+    "height": 404,
+    "file": "87-4029"
+  },
+  {
+    "id": "122:95",
+    "name": "Thông báo",
+    "page": "79:2",
+    "width": 420,
+    "height": 525,
+    "file": "122-95"
+  },
+  {
+    "id": "123:1367",
+    "name": "Menu biên bản bàn giao",
+    "page": "79:2",
+    "width": 176,
+    "height": 119,
+    "file": "123-1367"
+  }
+]
