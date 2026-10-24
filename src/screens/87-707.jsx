@@ -1,5 +1,6 @@
 /** Screen 87:707 — Tạo phiếu yêu cầu cấp phát - AssetFlow. Presentation adapted from Figma. */
-import { h } from "../design-runtime.jsx";
+import React,{useContext} from "react";
+import { h, Fragment, InteractionContext } from "../design-runtime.jsx";
 const imgSvg = "/assets/8568e0d3-4069-4cb8-98f6-838fe5258097.svg";
 const imgSvg1 = "/assets/17873e3b-4bc6-45c3-b83a-56b7bf644c8d.svg";
 const imgSvg2 = "/assets/7f2919b8-84d1-4cc9-9826-94e4d708d7f9.svg";
@@ -22,7 +23,32 @@ const imgSvg16 = "/assets/5707ecb6-f7f0-4ef7-8021-b45189a76faf.svg";
 const imgSvg17 = "/assets/ea389c25-c92a-421b-b5d4-6356762fceba.svg";
 const imgSvg18 = "/assets/41258f2d-f935-4ca9-8e2f-d17a08da46ce.svg";
 
+function QuotaAssetSelection(){
+ const assets=[['Laptop','Core i5, RAM 16GB, SSD 512GB','1 chiếc','Kèm balo, chuột kit'],['Màn hình rời 24 inch','Full HD, IPS, 75Hz','1 chiếc','Theo nhu cầu vị trí'],['Điện thoại bàn','Yealink SIP-T31P kèm nguồn','1 chiếc','Cấp số nội bộ khi bàn giao']];
+ return <section className="allocation-quota-panel" aria-label="Tài sản theo định mức">
+  <label className="allocation-quota-select">Chọn gói định mức áp dụng *<select defaultValue="sales"><option value="sales">Định mức Tiêu chuẩn - Nhân viên kinh doanh (Sales Executive) - Áp dụng từ 01/2026</option></select></label>
+  <p>Phòng ban áp dụng: Phòng Kinh doanh (KD) · Cập nhật lần cuối: 15/01/2026</p>
+  <div className="allocation-quota-table" role="table" aria-label="Danh sách tài sản định mức"><div className="allocation-quota-row allocation-quota-head" role="row"><span>Loại tài sản *</span><span>Mô tả</span><span>Số lượng *</span><span>Ghi chú</span><span/></div>{assets.map(([name,description,quantity,note])=><div className="allocation-quota-row" role="row" key={name}><strong>{name}</strong><span>{description}</span><b>{quantity}</b><span>{note}</span><i aria-label="Được khóa theo định mức">♧</i></div>)}</div>
+  <small>Các tài sản trong định mức đã được khóa số lượng chuẩn theo chính sách.</small>
+ </section>;
+}
+
+function AssetRequestRows(){
+ const context=useContext(InteractionContext),allocationAssets=context.allocationAssets??[{id:1,type:'',description:'',quantity:0,note:''}],updateAllocationAsset=context.updateAllocationAsset??(()=>{}),removeAllocationAsset=context.removeAllocationAsset??(()=>{});
+ return <div className="allocation-asset-table" aria-label="Danh sách tài sản cần cấp">
+  <div className="allocation-asset-header"><span>Loại tài sản *</span><span>Mô tả</span><span>Số lượng *</span><span>Ghi chú</span><span/></div>
+  {allocationAssets.map((asset,index)=><div className="allocation-asset-row" key={asset.id} data-allocation-asset-row={index+1}>
+   <select aria-label={'Loại tài sản dòng '+(index+1)} value={asset.type} onChange={event=>updateAllocationAsset(asset.id,{type:event.target.value})}><option value="">Chọn loại tài sản</option><option>Thiết bị công nghệ thông tin</option><option>Thiết bị văn phòng</option><option>Máy tính xách tay</option><option>Màn hình</option></select>
+   <input aria-label={'Mô tả dòng '+(index+1)} value={asset.description} onChange={event=>updateAllocationAsset(asset.id,{description:event.target.value})} placeholder="Nhập mô tả"/>
+   <div className="allocation-asset-quantity"><button type="button" onClick={()=>updateAllocationAsset(asset.id,{quantity:Math.max(0,asset.quantity-1)})} aria-label={'Giảm số lượng dòng '+(index+1)}>−</button><output>{asset.quantity}</output><button type="button" onClick={()=>updateAllocationAsset(asset.id,{quantity:asset.quantity+1})} aria-label={'Tăng số lượng dòng '+(index+1)}>+</button></div>
+   <input aria-label={'Ghi chú dòng '+(index+1)} value={asset.note} onChange={event=>updateAllocationAsset(asset.id,{note:event.target.value})} placeholder="Nhập ghi chú"/>
+   <button type="button" className="allocation-asset-remove" aria-label={'Xóa dòng '+(index+1)} disabled={allocationAssets.length===1} onClick={()=>removeAllocationAsset(asset.id)}>♧</button>
+  </div>)}
+ </div>;
+}
+
 export default function ToPhiuYeuCuCpPhatAssetFlow() {
+  const {allocationAssetMode,allocationRecordMode=false}=useContext(InteractionContext);
   return (
     <div className="ba-511f990318" data-node-id="87:707" style={{ backgroundImage: "linear-gradient(90deg, rgb(248, 250, 252) 0%, rgb(248, 250, 252) 100%), linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(255, 255, 255) 100%)" }} data-name="Tạo phiếu yêu cầu cấp phát - AssetFlow">
       <div className="ba-24b1752d62" data-node-id="87:708" data-name="MainContent">
@@ -120,7 +146,7 @@ export default function ToPhiuYeuCuCpPhatAssetFlow() {
               <div className="ba-ab7becbfcb" data-node-id="87:749" data-name="Container">
                 <div className="ba-153c0a1809" data-node-id="87:750" data-name="Heading 1">
                   <div className="ba-53e5a58ea1" data-node-id="87:751">
-                    <p className="ba-a0118ea47e">Tạo phiếu yêu cầu cấp phát</p>
+                    <p className="ba-a0118ea47e">{allocationRecordMode?'Chi tiết phiếu yêu cầu cấp phát':'Tạo phiếu yêu cầu cấp phát'}</p>
                   </div>
                 </div>
                 <div className="ba-153c0a1809" data-node-id="87:752" data-name="Container">
@@ -503,7 +529,9 @@ export default function ToPhiuYeuCuCpPhatAssetFlow() {
                     </div>
                   </div>
                 </div>
-                <div className="ba-2648fa4a12" data-node-id="87:897" data-name="Table Container">
+                {allocationAssetMode==='quota'&&<QuotaAssetSelection/>}
+                {allocationAssetMode!=='quota'&&<AssetRequestRows/>}
+                <div className="ba-2648fa4a12" data-node-id="87:897" data-name="Table Container" style={{display:'none'}}>
                   <div className="ba-3a49d0b1bc" data-node-id="87:898" data-name="Background+HorizontalBorder">
                     <div className="ba-c311cb44ba">
                       <div className="ba-7af780aba1" data-node-id="87:899" data-name="Container">
@@ -614,7 +642,7 @@ export default function ToPhiuYeuCuCpPhatAssetFlow() {
                           </div>
                         </div>
                       </div>
-                      <div className="ba-0138d9a50a" data-node-id="87:934" data-name="Item 2">
+                      <div className="ba-0138d9a50a" data-node-id="87:934" data-name="Item 2" hidden>
                         <div className="ba-9bbe0965ac" data-node-id="87:935" data-name="Input" data-field-hints="">
                           <div className="ba-0a68f81371">
                             <div className="ba-4a9b73a3b7" data-node-id="87:936" data-name="Container">
@@ -697,7 +725,7 @@ export default function ToPhiuYeuCuCpPhatAssetFlow() {
                     </div>
                   </div>
                 </div>
-                <div className="ba-ed33b5617d" data-node-id="87:960" data-name="Add Asset Button & Hint">
+                <div className="ba-ed33b5617d" data-node-id="87:960" data-name="Add Asset Button & Hint" style={allocationAssetMode==='quota'?{display:'none'}:undefined}>
                   <div className="ba-22d496be9c" data-node-id="87:961" data-name="Button">
                     <div className="ba-5cca20e57d" data-node-id="87:962" data-name="SVG">
                       <img alt="" className="ba-8faf267d30" src={imgSvg8} />

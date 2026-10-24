@@ -42,6 +42,72 @@ test('allocation list and form render accessible live controls',()=>{
  dom.window.close();
 });
 
+test('handover assets add blank rows, fill selections, update totals, delete and persist by record',async()=>{
+ const dom=new JSDOM('<div id="handover-test"></div>',{url:'http://localhost/',pretendToBeVisual:true});
+ const keys=['window','document','navigator','localStorage','HTMLElement','Event','MouseEvent'];
+ const previous=new Map(keys.map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+ for(const key of keys)Object.defineProperty(globalThis,key,{value:dom.window[key],configurable:true,writable:true});
+ globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+ const {createRoot}=await import('react-dom/client');
+ const root=createRoot(document.getElementById('handover-test'));
+ const Screen=components[manifest.findIndex(screen=>screen.id==='123:801')];
+ const {act}=React;
+ const render=props=>act(async()=>root.render(React.createElement(Screen,{isDetail:true,role:'asset-manager',recordCode:'TEST-BBBG',...props})));
+ const click=element=>act(async()=>element.dispatchEvent(new MouseEvent('click',{bubbles:true})));
+ const select=async(element,value)=>{await act(async()=>{element.value=value;element.dispatchEvent(new Event('change',{bubbles:true}));});};
+ const rows=()=>[...document.querySelectorAll('[data-handover-row]')];
+ const quantity=()=>document.querySelector('[data-handover-total-quantity]').textContent;
+ const amount=()=>document.querySelector('[data-handover-total-amount]').textContent;
+ try{
+  await render();
+  assert.equal(rows().length,5);assert.equal(quantity(),'5');assert.equal(amount(),'37.000.000');
+  await click(document.querySelector('.handover-add'));
+  assert.equal(rows().length,6);assert.equal(quantity(),'5');assert.equal(amount(),'37.000.000');
+  const blank=rows().at(-1);
+  assert.equal(blank.querySelector('select').value,'');
+  assert.ok([...blank.children].slice(2,8).every(cell=>cell.textContent===''&&[...cell.querySelectorAll('input')].every(input=>input.value==='')),'added asset cells start empty');
+  assert.equal(document.activeElement,blank.querySelector('select'),'focus moves to the new asset dropdown');
+  await select(blank.querySelector('select'),'office-chair');
+  assert.equal(blank.children[2].textContent,'Nội thất');
+  assert.equal(blank.children[3].textContent,'Chiếc');
+  assert.equal(blank.querySelector('input[type="number"]').value,'1');
+  assert.equal(blank.querySelector('[data-row-amount]').textContent,'1.200.000');
+  assert.equal(quantity(),'6');assert.equal(amount(),'38.200.000');
+  const count=blank.querySelector('input[type="number"]');
+  await act(async()=>{Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype,'value').set.call(count,'3');count.dispatchEvent(new Event('input',{bubbles:true}));});
+  assert.equal(quantity(),'8');assert.equal(amount(),'40.600.000');
+  assert.equal(document.querySelector('[data-handover-value]').textContent,'40.600.000 VNĐ');
+  assert.equal(document.querySelector('[data-handover-words]').textContent,'Bốn mươi triệu sáu trăm nghìn đồng chẵn.');
+  await select(blank.querySelector('select'),'monitor-dell-27');
+  assert.equal(blank.children[2].textContent,'Thiết bị CNTT');
+  assert.equal(quantity(),'6');assert.equal(amount(),'43.500.000');
+  await select(blank.querySelector('select'),'');
+  assert.equal(blank.querySelector('input[type="number"]').value,'');
+  assert.equal(quantity(),'5');assert.equal(amount(),'37.000.000');
+  await click(blank.querySelector('.handover-remove'));
+  assert.equal(rows().length,5);
+  while(rows().length)await click(rows()[0].querySelector('.handover-remove'));
+  assert.equal(quantity(),'0');assert.equal(amount(),'0');
+  assert.ok(document.querySelector('.handover-empty'));
+  await click(document.querySelector('.handover-add'));
+  await select(rows()[0].querySelector('select'),'laptop-dell-7440');
+  assert.equal(rows()[0].children[0].textContent,'1');assert.equal(amount(),'25.000.000');
+  await render({key:'reopened'});
+  assert.equal(rows().length,1);assert.equal(amount(),'25.000.000','edits persist when reopening the same handover');
+  await render({key:'different',recordCode:'OTHER-BBBG'});
+  assert.equal(rows().length,5,'other handovers keep their own assets');
+  await render({key:'employee',role:'employee'});
+  assert.equal(rows().length,1);assert.equal(amount(),'25.000.000');
+  assert.equal(document.querySelector('.handover-add'),null);
+  assert.equal(document.querySelector('.handover-remove'),null);
+  assert.equal(document.querySelector('.handover-assets input,.handover-assets select'),null,'employees see the saved assets without editing controls');
+ }finally{
+  await act(async()=>root.unmount());dom.window.close();
+  for(const key of keys){const descriptor=previous.get(key);if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
+  delete globalThis.IS_REACT_ACT_ENVIRONMENT;
+ }
+});
+
 test('client controls update, filter and route without a browser session',async()=>{
  const dom=new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>',{url:'http://localhost/#/cap-phat',pretendToBeVisual:true});
  const keys=['window','document','navigator','localStorage','sessionStorage','MutationObserver','CustomEvent','HTMLElement','Event','MouseEvent','KeyboardEvent','innerWidth','innerHeight','location'];
@@ -51,7 +117,7 @@ test('client controls update, filter and route without a browser session',async(
  // JSDOM has no layout; mark elements present in the document as visible for form validation.
  dom.window.HTMLElement.prototype.getClientRects=function(){return this.isConnected?[{x:0,y:0,width:100,height:40}]:[];};
  const appFile=path.join(generated,'app.mjs');
- await build({entryPoints:['src/main.jsx'],outfile:appFile,bundle:true,platform:'node',format:'esm',jsxFactory:'h',jsxFragment:'Fragment',loader:{'.css':'empty'},external:['react','react-dom/client'],plugins:[{name:'screen-loaders',setup(b){b.onLoad({filter:/src[\\/]main\.jsx$/},async args=>{let source=fs.readFileSync(args.path,'utf8');const glob='{'+manifest.map(f=>JSON.stringify('./screens/'+f.file+'.jsx')+':()=>import('+JSON.stringify('./screens/'+f.file+'.jsx')+')').join(',')+'}';source=source.replace("import.meta.glob('./screens/*.jsx')",glob);return {contents:source,loader:'jsx',resolveDir:path.dirname(args.path)};});}}]});
+ await build({entryPoints:['src/main.jsx'],outfile:appFile,bundle:true,platform:'node',format:'esm',jsxFactory:'h',jsxFragment:'Fragment',loader:{'.css':'empty'},external:['react','react-dom','react-dom/client'],plugins:[{name:'screen-loaders',setup(b){b.onLoad({filter:/src[\\/]main\.jsx$/},async args=>{let source=fs.readFileSync(args.path,'utf8');const glob='{'+manifest.map(f=>JSON.stringify('./screens/'+f.file+'.jsx')+':()=>import('+JSON.stringify('./screens/'+f.file+'.jsx')+')').join(',')+'}';source=source.replace("import.meta.glob('./screens/*.jsx')",glob);return {contents:source,loader:'jsx',resolveDir:path.dirname(args.path)};});}}]});
  const {act}=React;
  let app;
  try{
@@ -74,6 +140,16 @@ test('client controls update, filter and route without a browser session',async(
   assert.equal(location.hash,'#/thanh-ly/quyet-dinh');
   await act(async()=>{location.hash='/cap-phat';await new Promise(r=>setTimeout(r,40));});
   assert.ok(document.querySelector('[data-node-id="87:176"]'),'table action header remains available to other roles');
+  await act(async()=>{document.querySelector('[data-node-id="87:196"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  let allocationActions=document.querySelectorAll('.action-menu [role="menuitem"]');
+  assert.equal(allocationActions[2].disabled,true,'rejection reason is disabled unless the request was rejected');
+  assert.equal(allocationActions[3].disabled,false,'withdrawal is enabled for a pending request');
+  await act(async()=>{document.querySelector('.menu-dismiss').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  await act(async()=>{document.querySelector('[data-node-id="87:280"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  allocationActions=document.querySelectorAll('.action-menu [role="menuitem"]');
+  assert.equal(allocationActions[2].disabled,false,'rejection reason is enabled for a rejected request');
+  assert.equal(allocationActions[3].disabled,true,'withdrawal is disabled after rejection');
+  await act(async()=>{document.querySelector('.menu-dismiss').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
   assert.ok(![...document.querySelectorAll('.prototype-subnav-link')].some(link=>link.textContent.includes('Đã duyệt')),'approved is no longer a separate allocation step');
   const collapse=document.querySelector('.prototype-collapse');
   await act(async()=>{collapse.dispatchEvent(new MouseEvent('click',{bubbles:true}));});
@@ -97,6 +173,23 @@ test('client controls update, filter and route without a browser session',async(
   assert.equal(location.hash,'#/cap-phat/tao-moi');
   assert.ok(document.querySelectorAll('input').length>4);
   assert.ok(document.querySelectorAll('[data-required="true"]').length>0,'required form labels must reach native inputs');
+  assert.equal(document.querySelector('[data-field-id="87:832"]')?.value,'','new requests leave recipient details empty');
+  assert.equal(document.querySelector('[data-field-id="87:974"]')?.value,'','new requests leave the request reason empty');
+  assert.equal(document.querySelector('[data-field-id="87:916"]')?.value,'0','new asset rows start with zero quantity');
+  await act(async()=>{document.querySelector('[data-node-id="87:880"][role="radio"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  assert.ok(document.querySelector('.allocation-quota-panel'),'choosing quota mode displays the quota asset list');
+  assert.equal(document.querySelector('[data-node-id="87:897"]')?.style.display,'none','manual asset rows are hidden in quota mode');
+  assert.equal(document.querySelector('[data-node-id="87:888"]')?.getAttribute('aria-checked'),'false','the opposite asset source is cleared');
+  await act(async()=>{document.querySelector('[data-node-id="87:888"][role="radio"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  assert.equal(document.querySelector('[data-node-id="87:880"]')?.getAttribute('aria-checked'),'false','only one asset source can be selected');
+  assert.equal(document.querySelector('.allocation-quota-panel'),null,'switching source hides the quota asset list');
+  assert.ok(document.querySelector('[data-node-id="87:934"]')?.hidden,'a new request starts with one asset row');
+  await act(async()=>{document.querySelector('[data-node-id="87:961"][role="button"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  assert.equal(document.querySelector('[data-node-id="87:934"]')?.hidden,false,'adding an asset reveals the next row');
+  assert.equal(document.querySelector('[data-node-id="87:877"] p')?.textContent,'2 tài sản');
+  for(let index=0;index<8;index++)await act(async()=>{document.querySelector('[data-node-id="87:961"][role="button"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  assert.equal(document.querySelectorAll('[data-allocation-asset-row]').length,10,'the form supports up to ten asset rows with the same row structure');
+  assert.equal(document.querySelector('[data-node-id="87:877"] p')?.textContent,'10 tài sản');
   const submit=[...document.querySelectorAll('[role="button"]')].find(el=>el.textContent.trim()==='Gửi phiếu');
   assert.ok(submit);
   await act(async()=>{submit.dispatchEvent(new MouseEvent('click',{bubbles:true}));});
@@ -172,11 +265,32 @@ test('client controls update, filter and route without a browser session',async(
   await act(async()=>{location.hash='/cap-phat/ban-giao';await new Promise(r=>setTimeout(r,40));});
   const managerHandoverAction=document.querySelector('[data-node-id="123:1364"][role="button"]');
   assert.ok(managerHandoverAction,'asset manager can open handover row actions');
+  const handoverActions=[...document.querySelectorAll('[data-name="Button - Thao tác biên bản"]')];
+  assert.equal(handoverActions.length,6,'every handover row exposes the same action menu');
+  for(const [index,action] of handoverActions.entries()){
+   const top=index===5?window.innerHeight-40:120+index*40;
+   action.getBoundingClientRect=()=>({left:800,right:824,top,bottom:top+24,width:24,height:24});
+   await act(async()=>{action.dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+   assert.deepEqual([...document.querySelectorAll('.handover-row-menu [role="menuitem"]')].map(item=>item.textContent.trim()),['Xem chi tiết','Sửa biên bản','In biên bản']);
+   const overlay=document.querySelector('.handover-row-menu');
+   const edit=overlay.querySelectorAll('[role="menuitem"]')[1];
+   assert.equal(edit.disabled,index!==2,'only the draft handover can be edited');
+   if(index!==2){
+    await act(async()=>{edit.dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+    assert.equal(location.hash,'#/cap-phat/ban-giao','locked handovers cannot open the editor');
+   }
+   assert.equal(overlay.parentElement,document.body,'menu renders outside the scaled screen');
+   assert.equal(overlay.style.left,'628px','menu aligns with the clicked button right edge');
+   assert.equal(overlay.style.top,(index===5?top-122:top+30)+'px','menu opens beside the selected row, flipping above near the bottom');
+  }
   await act(async()=>{managerHandoverAction.dispatchEvent(new MouseEvent('click',{bubbles:true}));});
   assert.deepEqual([...document.querySelectorAll('.handover-row-menu [role="menuitem"]')].map(item=>item.textContent.trim()),['Xem chi tiết','Sửa biên bản','In biên bản']);
   await act(async()=>{document.querySelector('.handover-row-menu [role="menuitem"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,40));});
   assert.equal(location.hash,'#/cap-phat/ban-giao/chi-tiet');
   assert.ok(document.querySelector('.design-stage')?.textContent.includes('BBBG-2024-0325'),'row action opens the selected handover details');
+  assert.equal(document.querySelector('.handover-add,.handover-remove'),null,'pending-signature handovers cannot change asset rows');
+  assert.equal(document.querySelector('[data-node-id="123:1138"]'),null,'locked handovers cannot save a draft');
+  assert.ok([...document.querySelectorAll('.design-stage [data-field-id]')].every(field=>field.disabled),'locked handover fields are disabled');
   await act(async()=>{location.hash='/cap-phat/ban-giao';await new Promise(r=>setTimeout(r,40));});
   await act(async()=>{location.hash='/thu-hoi/quet-tai-san';await new Promise(r=>setTimeout(r,40));});
   const recoveryCards=document.querySelectorAll('[data-node-id="65:444"],[data-node-id="65:466"]');
@@ -218,6 +332,13 @@ test('client controls update, filter and route without a browser session',async(
   assert.equal(location.hash,'#/cap-phat');
   assert.ok(document.querySelector('.design-stage.role-employee'));
   assert.ok(document.querySelector('[data-node-id="87:176"]'),'ordinary employees retain the action column');
+  const employeeRequestRow=document.querySelector('[data-node-id="87:179"]');
+  await act(async()=>{employeeRequestRow.children[2].dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,40));});
+  assert.equal(location.hash,'#/cap-phat/tao-moi','opening an employee request uses the populated request form');
+  assert.equal(document.querySelector('[data-field-id="87:794"]')?.value,'CP-2026-024');
+  assert.ok(document.querySelector('[data-field-id="87:832"]')?.value.length>0,'the selected recipient is prefilled');
+  assert.ok(document.querySelector('[data-field-id="87:974"]')?.value,'the request reason is prefilled');
+  await act(async()=>{location.hash='/cap-phat';await new Promise(r=>setTimeout(r,40));});
   assert.equal(document.querySelectorAll('.prototype-nav-group').length,3);
   const liquidation=[...document.querySelectorAll('.prototype-nav-group')].find(el=>el.textContent.includes('Thanh lý tài sản'));
   await act(async()=>{liquidation.dispatchEvent(new MouseEvent('click',{bubbles:true}));await new Promise(r=>setTimeout(r,40));});

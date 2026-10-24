@@ -608,7 +608,7 @@ export default function DanhSachBienBnBanGiaoTaiSnAssetFlow() {
                       </div>
                       <div className="ba-58bf993401" data-node-id="123:1405" data-name="Data">
                         <div className="ba-2d4e1f073c">
-                          <div className="ba-ec5e88cdc0" data-node-id="123:1406" data-name="Button">
+                          <div className="ba-ec5e88cdc0" data-node-id="123:1406" data-name="Button - Thao tác biên bản">
                             <div className="ba-c51752dc8c" data-node-id="123:1407" data-name="SVG">
                               <img alt="" className="ba-8faf267d30" src={imgSvg17} />
                             </div>
@@ -678,7 +678,7 @@ export default function DanhSachBienBnBanGiaoTaiSnAssetFlow() {
                       </div>
                       <div className="ba-58bf993401" data-node-id="123:1428" data-name="Data">
                         <div className="ba-2d4e1f073c">
-                          <div className="ba-ec5e88cdc0" data-node-id="123:1429" data-name="Button">
+                          <div className="ba-ec5e88cdc0" data-node-id="123:1429" data-name="Button - Thao tác biên bản">
                             <div className="ba-c51752dc8c" data-node-id="123:1430" data-name="SVG">
                               <img alt="" className="ba-8faf267d30" src={imgSvg17} />
                             </div>
@@ -748,7 +748,7 @@ export default function DanhSachBienBnBanGiaoTaiSnAssetFlow() {
                       </div>
                       <div className="ba-58bf993401" data-node-id="123:1451" data-name="Data">
                         <div className="ba-2d4e1f073c">
-                          <div className="ba-ec5e88cdc0" data-node-id="123:1452" data-name="Button">
+                          <div className="ba-ec5e88cdc0" data-node-id="123:1452" data-name="Button - Thao tác biên bản">
                             <div className="ba-c51752dc8c" data-node-id="123:1453" data-name="SVG">
                               <img alt="" className="ba-8faf267d30" src={imgSvg17} />
                             </div>
@@ -818,7 +818,7 @@ export default function DanhSachBienBnBanGiaoTaiSnAssetFlow() {
                       </div>
                       <div className="ba-58bf993401" data-node-id="123:1474" data-name="Data">
                         <div className="ba-2d4e1f073c">
-                          <div className="ba-ec5e88cdc0" data-node-id="123:1475" data-name="Button">
+                          <div className="ba-ec5e88cdc0" data-node-id="123:1475" data-name="Button - Thao tác biên bản">
                             <div className="ba-c51752dc8c" data-node-id="123:1476" data-name="SVG">
                               <img alt="" className="ba-8faf267d30" src={imgSvg17} />
                             </div>
@@ -888,7 +888,7 @@ export default function DanhSachBienBnBanGiaoTaiSnAssetFlow() {
                       </div>
                       <div className="ba-58bf993401" data-node-id="123:1497" data-name="Data">
                         <div className="ba-4b7a02ba9e">
-                          <div className="ba-ec5e88cdc0" data-node-id="123:1498" data-name="Button">
+                          <div className="ba-ec5e88cdc0" data-node-id="123:1498" data-name="Button - Thao tác biên bản">
                             <div className="ba-c51752dc8c" data-node-id="123:1499" data-name="SVG">
                               <img alt="" className="ba-8faf267d30" src={imgSvg17} />
                             </div>

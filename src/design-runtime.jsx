@@ -33,11 +33,15 @@ function Field({as='input',designProps,children}){
  const text=textOf(children).replace(/\s+/g,' ').trim();
  const hints=props['data-field-hints']||'';
  const isCheck=hints.includes('check');
+ const radioGroup=({'87:808':'allocation-request-type','87:816':'allocation-request-type','87:880':'allocation-asset-source','87:888':'allocation-asset-source'})[nodeId];
  const isPlaceholder=/^(nhập|nhap|tìm |tim |chọn |chon |vd:|ví dụ|dd\/|--|gõ |tối thiểu)/i.test(text)||!text;
  const isFilter=/^(tất cả|tìm |tra cứu|nhập mã phiếu|\d+\s*\/\s*trang)/i.test(text);
  const password=/mật khẩu|password/i.test(text+' '+props['data-name']);
- const [value,setValue]=useState(()=>(!isFilter&&!password?readStore().forms?.[nodeId]:undefined)??(isPlaceholder?'':text));
- const [checked,setChecked]=useState(false);
+ const readOnly=hints.includes('readonly')&&!isPlaceholder;
+ const clearAllocationRequest=ctx.clearAllocationRequest&&!readOnly;
+ const [value,setValue]=useState(()=>clearAllocationRequest?(['87:916','87:942'].includes(nodeId)?'0':''):((!isFilter&&!password?readStore().forms?.[nodeId]:undefined)??(isPlaceholder?'':text)));
+ const [checked,setChecked]=useState(()=>!clearAllocationRequest&&readStore().forms?.[nodeId]===true);
+ useEffect(()=>{if(radioGroup)setChecked(ctx.radioSelection?.[radioGroup]===nodeId);},[radioGroup,ctx.radioSelection,nodeId]);
  const [label,setLabel]=useState(text||'Thông tin');
  useEffect(()=>{if(isFilter)setValue(isPlaceholder?'':text);},[ctx.resetKey]);
  const ownRef=React.useCallback(el=>{
@@ -54,16 +58,17 @@ function Field({as='input',designProps,children}){
   const next=e.target.value;setValue(next);if(!isFilter&&!password)storeField(nodeId,next);
   ctx.field({id:nodeId,value:next,label,element:e.target,kind:as});
  };
- if(isCheck)return React.createElement('span',{...props,className:(className||'')+' control-check',role:'checkbox','aria-label':label,'aria-checked':checked,tabIndex:0,
-  onClick:e=>{e.stopPropagation();setChecked(!checked);ctx.field({id:nodeId,value:!checked,label,element:e.currentTarget,kind:'checkbox'});},
-  onKeyDown:e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();e.stopPropagation();setChecked(current=>!current);ctx.field({id:nodeId,value:!checked,label,element:e.currentTarget,kind:'checkbox'});}}
+ if(isCheck)return React.createElement('span',{...props,className:(className||'')+' control-check',role:radioGroup?'radio':'checkbox','aria-label':label,'aria-checked':checked,tabIndex:0,
+  onClick:e=>{e.stopPropagation();const next=radioGroup?true:!checked;setChecked(next);storeField(nodeId,next);if(radioGroup)ctx.chooseRadio?.(radioGroup,nodeId);ctx.field({id:nodeId,value:next,label,element:e.currentTarget,kind:'checkbox'});},
+  onKeyDown:e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();e.stopPropagation();const next=radioGroup?true:!checked;setChecked(next);storeField(nodeId,next);if(radioGroup)ctx.chooseRadio?.(radioGroup,nodeId);ctx.field({id:nodeId,value:next,label,element:e.currentTarget,kind:'checkbox'});}}
  },children,checked&&React.createElement('span',{className:'check-mark','aria-hidden':true},'✓'));
- const readOnly=hints.includes('readonly')&&!isPlaceholder;
  const isSelect=as==='select';
  let options=isSelect?optionsFor(text,ctx.group):[];
+ if(isSelect&&clearAllocationRequest)options=['',...options];
  if(isSelect&&!options.includes(value||text))options.unshift(value||text);
- const nativeProps={className:'design-native-control',value:isSelect?(value||text):value,onChange,'aria-label':label,'data-field-id':nodeId,'data-required':label.includes('*')?'true':undefined,'data-placeholder':isPlaceholder?'true':undefined,ref:ownRef,readOnly,
+ const nativeProps={className:'design-native-control',value:isSelect?(clearAllocationRequest?value:(value||text)):value,onChange,'aria-label':label,'data-field-id':nodeId,'data-required':label.includes('*')?'true':undefined,'data-placeholder':isPlaceholder?'true':undefined,ref:ownRef,readOnly,
   onClick:e=>e.stopPropagation(),onFocus:e=>e.currentTarget.parentElement?.classList.add('field-focused'),onBlur:e=>e.currentTarget.parentElement?.classList.remove('field-focused'),
+  disabled:ctx.handoverReadOnly||undefined,
   style:{paddingLeft:/nhập mã phiếu|tìm |tìm kiếm|mật khẩu|tra cứu/i.test(text)?40:14}
  };
  if(!isSelect){nativeProps.placeholder=isPlaceholder?text:undefined;nativeProps.type=password?'password':'text';}

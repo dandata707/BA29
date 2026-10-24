@@ -1,4 +1,5 @@
-import React,{Suspense,lazy,useCallback,useEffect,useRef,useState} from 'react';
+import React,{Suspense,lazy,useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {createPortal} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {h,Fragment,InteractionContext} from './design-runtime.jsx';
 import {classifyAction,filterRecords,groupFor,groups,normalize,primaryRoutes,routes,validateForm} from './workflows.mjs';
@@ -7,6 +8,7 @@ import {PrototypeNav} from './prototype-nav.jsx';
 import RequestDetail from './request-detail.jsx';
 import RequestList from './request-list.jsx';
 import RecoveryComplete from './recovery-complete.jsx';
+import {isHandoverLocked} from './handover-assets.mjs';
 import {canVisit,groupHomeForRole,groupsForRole,roleHome,roleInfo} from './roles.mjs';
 import manifest from './screen-manifest.json';
 import '@fontsource-variable/inter';
@@ -23,6 +25,7 @@ import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/solid.css';
 import './base.css';
 import './design.css';
+import './handover-assets.css';
 
 const loaders=import.meta.glob('./screens/*.jsx');
 const screens=Object.fromEntries(manifest.map(f=>[f.id,lazy(loaders['./screens/'+f.file+'.jsx'])]));
@@ -41,6 +44,22 @@ function Modal({title,children,onClose,wide=false,className=''}){
  useEffect(()=>{ref.current?.querySelector('button,input,textarea,[tabindex="0"]')?.focus();return()=>lastFocus.current?.focus?.();},[]);
  const trap=e=>{if(e.key!=='Tab')return;const list=[...ref.current.querySelectorAll('button,input,select,textarea,[tabindex="0"]')].filter(x=>!x.disabled);const first=list[0],last=list.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}};
  return <div className="app-backdrop" onClick={onClose} onKeyDown={trap}><section className={'app-modal'+(wide?' app-modal-wide':'')+(className?' '+className:'')} role="dialog" aria-modal="true" aria-label={title} ref={ref} onClick={e=>e.stopPropagation()}>{title&&<header><h2>{title}</h2><button className="icon-button" aria-label="Đóng" onClick={onClose}>×</button></header>}{children}</section></div>;
+}
+
+function HandoverRowMenu({anchor,children}){
+ const ref=useRef(null),[position,setPosition]=useState(null);
+ useLayoutEffect(()=>{
+  const place=()=>{
+   if(!anchor?.isConnected)return;
+   const rect=anchor.getBoundingClientRect(),menu=ref.current;
+   const width=menu?.offsetWidth||196,height=menu?.offsetHeight||116,gap=6,padding=8;
+   const below=rect.bottom+gap;
+   setPosition({left:Math.max(padding,Math.min(rect.right-width,window.innerWidth-width-padding)),top:Math.max(padding,Math.min(below+height<=window.innerHeight-padding?below:rect.top-height-gap,window.innerHeight-height-padding))});
+  };
+  place();window.addEventListener('scroll',place,true);window.addEventListener('resize',place);
+  return()=>{window.removeEventListener('scroll',place,true);window.removeEventListener('resize',place);};
+ },[anchor]);
+ return createPortal(<div ref={ref} className="handover-row-menu" style={{...position,visibility:position?'visible':'hidden'}} role="menu" aria-label="Thao tác biên bản">{children}</div>,document.body);
 }
 
 function EmployeeNotifications({onClose,onOpen}){
@@ -117,23 +136,60 @@ function App(){
  const [handoverPasswordError,setHandoverPasswordError]=useState('');
  const [detailRequest,setDetailRequest]=useState(null);
  const [rejectReason,setRejectReason]=useState(''),[rejectError,setRejectError]=useState('');
+ const [allocationRecordMode,setAllocationRecordMode]=useState(false),[allocationAssetMode,setAllocationAssetMode]=useState('new'),[radioSelection,setRadioSelection]=useState({}),[allocationAssets,setAllocationAssets]=useState([{id:1,type:'',description:'',quantity:0,note:''}]);
+ const allocationAssetRows=allocationAssets.length;
  const root=useRef(null),uploadRef=useRef(null),previous=useRef('/cap-phat'),toastTimer=useRef(),selectedRow=useRef(null),selectedIds=useRef(new Set());
  const id=screenFor(route),frame=byId[id]||byId['87:2'],group=groupFor(frame.page);
  const notify=useCallback((message,error=false)=>{setToast({message,error});clearTimeout(toastTimer.current);toastTimer.current=setTimeout(()=>setToast(null),4500);},[]);
  const navigate=useCallback(path=>{if(!canVisit(role,path)){notify('Màn hình này không thuộc vai trò '+roleInfo(role).label+'.',true);return;}setMobileNavOpen(false);if(path===routeNow()){setModal(null);setMenu(null);return;}previous.current=routeNow();location.hash=path;setModal(null);setMenu(null);setFormError('');},[role,notify]);
  const showScreen=useCallback(screen=>navigate(primaryRoutes[screen]||'/man-hinh/'+screen.replace(':','-')),[navigate]);
- useEffect(()=>{const changed=()=>{setRoute(routeNow());setFilters({});setPage(1);setMenu(null);setModal(null);setFormError('');selectedIds.current.clear();window.scrollTo(0,0);};window.addEventListener('hashchange',changed);return()=>window.removeEventListener('hashchange',changed);},[]);
+ useEffect(()=>{const changed=()=>{const nextRoute=routeNow();setRoute(nextRoute);if(nextRoute!=='/cap-phat/tao-moi'){setAllocationRecordMode(false);setAllocationAssetMode('new');setRadioSelection({});setAllocationAssets([{id:1,type:'',description:'',quantity:0,note:''}]);}setFilters({});setPage(1);setMenu(null);setModal(null);setFormError('');selectedIds.current.clear();window.scrollTo(0,0);};window.addEventListener('hashchange',changed);return()=>window.removeEventListener('hashchange',changed);},[]);
  useEffect(()=>{document.title=(id==='request-detail'?'Chi tiết phiếu yêu cầu cấp phát':id==='request-list'?'Danh sách phiếu yêu cầu cấp phát':friendlyTitle(frame))+' — BA Asset';},[id]);
  useEffect(()=>{const key=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setModal('workspace');}if(e.key==='Escape'){setMenu(null);setModal(null);}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();document.dispatchEvent(new CustomEvent('ba-save'));}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
  useEffect(()=>()=>clearTimeout(toastTimer.current),[]);
  useEffect(()=>{localStorage.setItem('ba29-nav-collapsed',String(navCollapsed));},[navCollapsed]);
+ useEffect(()=>{
+  if(id!=='87:707')return;
+  const secondRow=root.current?.querySelector('[data-node-id="87:934"]');
+  if(secondRow)secondRow.hidden=allocationAssetRows<2;
+  const count=root.current?.querySelector('[data-node-id="87:877"] p');
+  if(count)count.textContent=allocationAssetRows+' tài sản';
+ },[id,allocationAssetRows]);
  useEffect(()=>{const resize=()=>{const mobile=window.innerWidth<=900;const available=window.innerWidth-(mobile?0:navCollapsed?76:256);setStageScale(Math.min(1,Math.max(.72,available/Math.max(frame.width||1280,1024))));if(!mobile)setMobileNavOpen(false);};resize();window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);},[id,navCollapsed,frame.width]);
  useEffect(()=>{localStorage.setItem('ba29-role',role);if(!canVisit(role,route))location.hash=roleHome(role);},[role,route]);
 
  const back=()=>navigate(previous.current===route?groups.find(g=>g.key===group).path:previous.current);
+ const openEmployeeRequest=row=>{
+  const cells=[...row.children].map(cell=>cell.textContent.trim().replace(/\s+/g,' '));
+  const code=cells[1]?.replace(/\s+/g,'').match(/CP-\d{4}-\d+/)?.[0]||'CP-2026-030';
+  const type=cells[2]?.includes('mới')?'Cho nhân viên mới':'Cho cá nhân';
+  const recipient=cells[3]||'Nguyễn Minh Anh';
+  const createdAt=cells[4]||'20/10/2026',neededAt=cells[5]||'25/10/2026';
+  const suffix=code.match(/\d{3}$/)?.[0]||'025';
+  const values={
+   '87:770':'Nguyễn Minh Anh','87:776':'NV-0025','87:782':'Nhân sự','87:788':'Chuyên viên nhân sự','87:794':code,'87:800':createdAt,
+   '87:808':type==='Cho cá nhân','87:816':type==='Cho nhân viên mới',
+   '87:832':recipient,'87:838':'NV-'+suffix,'87:844':'Nhân viên','87:851':'Phòng Kinh doanh','87:866':neededAt,
+   '87:880':true,'87:888':false,'87:909':'RAM 16GB, SSD 512GB','87:916':'1','87:921':'Phục vụ công việc','87:928':'Máy tính xách tay',
+   '87:935':'24 inch, Full HD','87:942':'1','87:947':'Làm việc tại văn phòng','87:954':'Màn hình','87:974':'Cấp phát tài sản phục vụ công việc','87:983':neededAt
+  };
+  Object.entries(values).forEach(([fieldId,value])=>storeField(fieldId,value));
+  setDetailCode(code);
+  setDetailRequest({code,type,recipient,created:createdAt,needed:neededAt,status:cells[6]||''});
+  setAllocationRecordMode(true);setAllocationAssetMode('quota');setAllocationAssets([{id:1,type:'Máy tính xách tay',description:'RAM 16GB, SSD 512GB',quantity:1,note:'Phục vụ công việc'},{id:2,type:'Màn hình',description:'24 inch, Full HD',quantity:1,note:'Làm việc tại văn phòng'}]);setRadioSelection({"allocation-request-type":type==='Cho cá nhân'?'87:808':'87:816',"allocation-asset-source":'87:880'});
+  navigate('/cap-phat/tao-moi');
+ };
+ const openAllocationDetail=row=>{
+  const cells=[...(row?.children||[])].map(cell=>cell.textContent.trim().replace(/\s+/g,' '));
+  const code=cells[1]?.replace(/\s+/g,'').match(/CP-\d{4}-\d+/)?.[0]||'CP-2026-030';
+  setDetailCode(code);
+  setDetailRequest({code,type:cells[2]||'',recipient:cells[3]||'',creator:'Nguyễn Minh Anh',created:cells[4]||'',needed:cells[5]||'',status:cells[6]||''});
+  navigate('/cap-phat/chi-tiet');
+ };
  const visibleFields=()=>[...(root.current?.querySelectorAll('[data-field-id]')||[])].filter(el=>el.getClientRects().length).map(el=>({id:el.dataset.fieldId,label:el.getAttribute('aria-label')||'Thông tin',required:el.dataset.required==='true',value:el.value,readOnly:el.readOnly,element:el}));
  const validate=()=>{const fields=visibleFields();const errors=validateForm(fields);root.current?.querySelectorAll('[aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));for(const error of errors)fields.find(f=>f.id===error.id)?.element.setAttribute('aria-invalid','true');if(errors.length){fields.find(f=>f.id===errors[0].id)?.element.focus();setFormError('Vui lòng điền đầy đủ '+errors.length+' thông tin bắt buộc.');notify('Vui lòng kiểm tra các thông tin bắt buộc.',true);return false;}setFormError('');return true;};
  const save=(action)=>{
+  if(route==='/cap-phat/ban-giao/chi-tiet'&&isHandoverLocked(handoverCode)){notify('Biên bản chờ ký hoặc hoàn tất không được chỉnh sửa.',true);return;}
   if(!action.draft&&!validate())return;
   const fields=Object.fromEntries(visibleFields().filter(f=>f.element.type!=='password'&&!/mật khẩu|password/i.test(f.label)).map(f=>[f.label,f.value]));
   const prefix=({assets:'TS',allocation:'CP',recovery:'TH',transfer:'DC',liquidation:'TL'})[group];
@@ -185,7 +241,9 @@ function App(){
    case 'navigate':navigate(a.path);break;
    case 'screen':showScreen(a.id);break;
    case 'modal':setMenu(null);setModal(a.kind);break;
-   case 'back':if(a.confirm&&visibleFields().some(f=>!f.readOnly&&f.value))setModal('leave');else back();break;
+   case 'back':
+    if(route==='/cap-phat/tao-moi'&&allocationRecordMode&&['cho duyet','da duyet'].includes(normalize(detailRequest?.status||''))){navigate('/cap-phat');break;}
+    if(route!=='/cap-phat/chi-tiet'&&a.confirm&&visibleFields().some(f=>!f.readOnly&&f.value))setModal('leave');else back();break;
    case 'close':if(modal)setModal(null);else back();setMenu(null);break;
    case 'password':setPasswordVisible(!passwordVisible);root.current?.querySelectorAll('input').forEach(el=>{if(/mật khẩu/i.test(el.getAttribute('aria-label')||''))el.type=passwordVisible?'password':'text';});break;
    case 'refresh':setFilters({});setPage(1);setResetKey(k=>k+1);notify('Đã làm mới danh sách.');break;
@@ -206,6 +264,7 @@ function App(){
    case 'select-assets':navigate('/thanh-ly/tao-moi');notify('Đã thêm tài sản đã chọn vào danh sách đề nghị.');break;
    case 'remove-row':{const row=findDataRow(source.element);if(row){row.hidden=true;notify('Đã bỏ tài sản khỏi danh sách.');}break;}
    case 'add-row':{
+    if(id==='87:707'){if(allocationAssetRows>=10){notify('Tối đa 10 dòng tài sản cho mỗi phiếu.',true);break;}setAllocationAssets(items=>[...items,{id:Math.max(0,...items.map(item=>item.id))+1,type:'',description:'',quantity:0,note:''}]);break;}
     if(role==='employee'&&route==='/thanh-ly/tao-moi'){setModal('liquidation-assets');break;}
     const body=route==='/thanh-ly/tao-moi'?root.current?.querySelector('[data-node-id="145:28087"]'):root.current?.querySelector('[data-name="Body"],[data-name*="Table Body"]');
     const rows=body?[...body.children]:[],template=rows.at(-1),row=template?.cloneNode(true);
@@ -223,7 +282,7 @@ function App(){
    }
    case 'export':exportData(a.format);break;
    case 'download-attachment':notify('Chưa có tệp đính kèm mẫu để tải về.',true);break;
-   case 'menu':{const rect=source.element?.getBoundingClientRect();selectedRow.current=findDataRow(source.element);setMenu({x:Math.min(rect?.left||innerWidth-230,innerWidth-220),y:Math.min((rect?.bottom||100)+5,innerHeight-235)});break;}
+   case 'menu':{const rect=source.element?.getBoundingClientRect(),row=findDataRow(source.element);selectedRow.current=row;setMenu({x:Math.min(rect?.left||innerWidth-230,innerWidth-220),y:Math.min((rect?.bottom||100)+5,innerHeight-235),requestStatus:normalize(row?.children?.[6]?.textContent||'')});break;}
   }
  };
 
@@ -242,10 +301,10 @@ function App(){
   return;
  }
  if(role==='asset-manager'&&id==='123:1142'&&/thao tac bien ban/.test(normalize(n))){
-  const rect=source.element?.getBoundingClientRect(),row=findDataRow(source.element),code=row?.textContent.match(/BBBG-\d{4}-\d+/)?.[0];
+  const row=findDataRow(source.element),code=row?.textContent.match(/BBBG-\d{4}-\d+/)?.[0];
   if(code)setHandoverCode(code);
   selectedRow.current=row;
-  setMenu({kind:'handover',x:Math.min(rect?.left||innerWidth-210,innerWidth-210),y:Math.min((rect?.bottom||100)+5,innerHeight-150)});
+  setMenu({kind:'handover',anchor:source.element,locked:isHandoverLocked(code)});
   return;
  }
  if(role==='asset-manager'&&route==='/thanh-ly/du-dieu-kien'&&/hanh dong/.test(n)){
@@ -278,7 +337,11 @@ function App(){
  };
 
  const field=change=>{
-  if(change.kind==='checkbox'){change.value?selectedIds.current.add(change.id):selectedIds.current.delete(change.id);return;}
+  if(change.kind==='checkbox'){
+   if(route==='/cap-phat/tao-moi'&&change.value&&change.id==='87:880')setAllocationAssetMode('quota');
+   if(route==='/cap-phat/tao-moi'&&change.value&&change.id==='87:888')setAllocationAssetMode('new');
+   change.value?selectedIds.current.add(change.id):selectedIds.current.delete(change.id);return;
+  }
   const t=normalize(change.label),value=change.value;
   const inFilter=!!change.element.closest('[data-name*="Filter"],[data-name*="Search"],[data-name*="Toolbar"]');
   if(inFilter||(/tìm|tra cứu|nhập mã phiếu/i.test(change.element.placeholder||''))){
@@ -324,6 +387,8 @@ function App(){
 
  const rootClick=e=>{
   if(e.target.closest('[role="button"],input,select,textarea'))return;
+  const employeeAllocationRow=role==='employee'&&route==='/cap-phat'&&e.target.closest('[data-name^="Row "]');
+  if(employeeAllocationRow){openEmployeeRequest(employeeAllocationRow);return;}
   const handoverRow=e.target.closest('[data-name^="Row "]');
   const handoverRowCode=handoverRow?.textContent.match(/BBBG-\d{4}-\d+/)?.[0];
   if(group==='allocation'&&route==='/cap-phat/ban-giao'&&handoverRowCode){setHandoverCode(handoverRowCode);navigate('/cap-phat/ban-giao/chi-tiet');return;}
@@ -335,7 +400,7 @@ function App(){
  };
  const onFile=e=>{const picked=[...(e.target.files||[])];if(picked.some(f=>f.size>20*1024*1024)){notify('Mỗi tệp tối đa 20 MB.',true);return;}setFiles(v=>[...v,...picked]);notify('Đã đính kèm '+picked.length+' tệp.');};
 
- return <InteractionContext.Provider value={{action,field,resetKey,records,group,role,isList:Object.values(groups).some(g=>g.path===route)}}>
+ return <InteractionContext.Provider value={{action,field,resetKey,records,group,role,allocationAssetMode,allocationRecordMode,allocationAssetRows,allocationAssets,updateAllocationAsset:(id,patch)=>setAllocationAssets(items=>items.map(item=>item.id===id?{...item,...patch}:item)),removeAllocationAsset:id=>setAllocationAssets(items=>items.length>1?items.filter(item=>item.id!==id):items),radioSelection,chooseRadio:(groupKey,nodeId)=>setRadioSelection(current=>({...current,[groupKey]:nodeId})),clearAllocationRequest:route==='/cap-phat/tao-moi'&&!allocationRecordMode,handoverReadOnly:route==='/cap-phat/ban-giao/chi-tiet'&&isHandoverLocked(handoverCode),isList:Object.values(groups).some(g=>g.path===route)}}>
   <div className={'prototype-shell'+(navCollapsed?' nav-collapsed':'')+(mobileNavOpen?' mobile-nav-open':'')}>
   {mobileNavOpen&&<button className="prototype-mobile-dismiss" aria-label="Đóng menu điều hướng" onClick={()=>setMobileNavOpen(false)}/>}
   <PrototypeNav route={route} group={group} role={role} onRoleChange={next=>{setRole(next);setMobileNavOpen(false);location.hash=roleHome(next);setModal(null);setMenu(null);}} onNavigate={navigate} onWorkspace={()=>{setMobileNavOpen(false);setModal('workspace');}} onHelp={()=>{setMobileNavOpen(false);setModal('help');}} collapsed={navCollapsed} onToggle={()=>setNavCollapsed(value=>!value)} mobileOpen={mobileNavOpen} onMobileToggle={()=>setMobileNavOpen(value=>!value)}/>
@@ -351,7 +416,7 @@ function App(){
   <input type="file" ref={uploadRef} hidden multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" onChange={onFile}/>
   {menu?.kind==='liquidation-proposal'&&<><div className="menu-dismiss" onClick={()=>setMenu(null)}/><div className="action-menu" role="menu" aria-label="Thao tác đề nghị thanh lý" style={{left:menu.x,top:menu.y}}><button role="menuitem" onClick={()=>{setMenu(null);navigate('/thanh-ly/tham-dinh');}}>Xem chi tiết đề nghị</button>{menu.eligible&&<button role="menuitem" onClick={()=>{setMenu(null);navigate('/thanh-ly/lap-to-trinh');}}>Lập tờ trình</button>}</div></>}
   {toast&&<div className={'app-toast'+(toast.error?' app-toast-error':'')} role={toast.error?'alert':'status'}><span>{toast.error?'!':'✓'}</span>{toast.message}<button aria-label="Đóng thông báo" onClick={()=>setToast(null)}>×</button></div>}
-  {menu&&menu.kind!=='liquidation-proposal'&&<><div className="menu-dismiss" onClick={()=>setMenu(null)}/>{menu.kind==='handover'?<div className="handover-row-menu" style={{left:menu.x,top:menu.y}} role="menu" aria-label="Thao tác biên bản"><button role="menuitem" onClick={()=>{setMenu(null);navigate('/cap-phat/ban-giao/chi-tiet');}}><i className="fa-regular fa-eye" aria-hidden="true"/>Xem chi tiết</button><button role="menuitem" onClick={()=>{setMenu(null);navigate('/cap-phat/ban-giao/tao-moi');}}><i className="fa-regular fa-pen-to-square" aria-hidden="true"/>Sửa biên bản</button><button role="menuitem" onClick={()=>{setMenu(null);exportData('print');}}><i className="fa-solid fa-print" aria-hidden="true"/>In biên bản</button></div>:<div className="action-menu" style={{left:menu.x,top:menu.y}} role="menu">{(group==='allocation'?[['Xem chi tiết','/cap-phat/chi-tiet'],['Chỉnh sửa phiếu','/cap-phat/tao-moi'],['Xem lý do từ chối','87:1419'],['Hủy phiếu','cancel-record']]:group==='assets'?[['Xem / sửa thông tin','/tai-san/chinh-sua'],['In QR tài sản','/tai-san/in-qr'],['Xóa tài sản','/tai-san/xoa']]:[['Xem chi tiết',group==='liquidation'?(role==='employee'?'/thanh-ly/tao-moi':'/thanh-ly/tham-dinh'):groups.find(g=>g.key===group).path+'/chi-tiet'],['Xuất dữ liệu','export']]).map(([label,target])=><button role="menuitem" key={label} onClick={()=>{setMenu(null);if(target.startsWith('/'))navigate(target);else if(target.includes(':'))showScreen(target);else if(target==='export')exportData('csv');else setModal(target);}}>{label}</button>)}</div>}</>}
+  {menu&&menu.kind!=='liquidation-proposal'&&<><div className="menu-dismiss" onClick={()=>setMenu(null)}/>{menu.kind==='handover'?<HandoverRowMenu anchor={menu.anchor}><button role="menuitem" onClick={()=>{setMenu(null);navigate('/cap-phat/ban-giao/chi-tiet');}}><i className="fa-solid fa-eye" aria-hidden="true"/>Xem chi tiết</button><button role="menuitem" disabled={menu.locked} title={menu.locked?"Biên bản chờ ký hoặc hoàn tất không được chỉnh sửa":undefined} onClick={()=>{if(menu.locked)return;setMenu(null);navigate('/cap-phat/ban-giao/tao-moi');}}><i className="fa-solid fa-pen-to-square" aria-hidden="true"/>Sửa biên bản</button><button role="menuitem" onClick={()=>{setMenu(null);exportData('print');}}><i className="fa-solid fa-print" aria-hidden="true"/>In biên bản</button></HandoverRowMenu>:<div className="action-menu" style={{left:menu.x,top:menu.y}} role="menu">{(group==='allocation'?[['Xem chi tiết','view-allocation',true],['Chỉnh sửa phiếu','edit-allocation',!['da duyet','cho duyet'].includes(menu.requestStatus)],['Xem lý do từ chối','87:1419',menu.requestStatus?.includes('tu choi')],['Thu hồi phiếu','cancel-record',menu.requestStatus?.includes('cho duyet')]]:group==='assets'?[['Xem / sửa thông tin','/tai-san/chinh-sua',true],['In QR tài sản','/tai-san/in-qr',true],['Xóa tài sản','/tai-san/xoa',true]]:[['Xem chi tiết',group==='liquidation'?(role==='employee'?'/thanh-ly/tao-moi':'/thanh-ly/tham-dinh'):groups.find(g=>g.key===group).path+'/chi-tiet',true],['Xuất dữ liệu','export',true]]).map(([label,target,enabled])=><button role="menuitem" key={label} disabled={!enabled} onClick={()=>{if(!enabled)return;const row=selectedRow.current;setMenu(null);if(target==='view-allocation'||target==='edit-allocation')openAllocationDetail(row);else if(target.startsWith('/'))navigate(target);else if(target.includes(':'))showScreen(target);else if(target==='export')exportData('csv');else setModal(target);}}>{label}</button>)}</div>}</>}
   {(modal==='workspace'||route==='/man-hinh')&&<Workspace role={role} onNavigate={navigate} onScreen={showScreen} onClose={()=>modal?setModal(null):navigate(roleHome(role))} gallery={route==='/man-hinh'}/>}
   {modal==='liquidation-assets'&&role==='employee'&&route==='/thanh-ly/tao-moi'&&<LiquidationAssetPicker onClose={()=>setModal(null)} onAdd={addLiquidationAssets}/>}
   {modal==='employee-liquidation-detail'&&<Modal title={'Chi tiết đề nghị thanh lý '+liquidationCode} onClose={()=>setModal(null)}><div className="modal-body"><p>Mã đề nghị: <strong>{liquidationCode}</strong></p><p>Ngày lập: {liquidationInfo?.date||'—'}</p><p>Người lập: {liquidationInfo?.owner||'—'} · Bộ phận: {liquidationInfo?.department||'—'}</p><p>Số tài sản: {liquidationInfo?.assets||'—'} · Trạng thái: {liquidationInfo?.status||'—'}</p><div className="modal-actions"><button onClick={()=>setModal(null)}>Đóng</button></div></div></Modal>}

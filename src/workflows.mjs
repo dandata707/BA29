@@ -28,7 +28,7 @@ export function classifyAction({label='',name='',id='',group='allocation',screen
  const t=normalize(label),n=normalize(name),all=t+' '+n;
  const go=path=>({type:'navigate',path}); const modal=kind=>({type:'modal',kind});
  if(/dong modal|close window|close button|nut dong nhanh|hien.an mat khau/.test(n))return {type:/mat khau/.test(n)?'password':'close'};
- if(/dong hop thoai|dong canh bao|^button - close$/.test(n))return {type:'close'};
+ if(/dong hop thoai|dong canh bao|dong cua so|^button - close$/.test(n))return {type:'close'};
  if(/tro giup|ho tro/.test(n))return modal('help');
  if(/xoa tu khoa tim kiem/.test(all))return {type:'clear-query'};
  if(/bo chon/.test(all))return {type:'clear-selection'};

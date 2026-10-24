@@ -41,6 +41,7 @@ test('navigation and primary workflow actions lead to the intended step',()=>{
  assert.equal(classifyAction({label:'Tìm kiếm',name:'Button',group:'assets'}).type,'focus-search');
  assert.equal(classifyAction({label:'Nháp1',name:'Button',group:'recovery',screen:'/thu-hoi'}).type,'status-tab');
  assert.equal(classifyAction({name:'Button - Trợ giúp',group:'assets'}).kind,'help');
+ assert.equal(classifyAction({name:'Button - Đóng cửa sổ',group:'allocation',screen:'/man-hinh/87-1419'}).type,'close');
  assert.equal(classifyAction({name:'Button - Xóa từ khóa tìm kiếm',group:'assets'}).type,'clear-query');
  assert.equal(classifyAction({label:'Xuất dữ liệu',group:'assets'}).format,'csv');
  assert.equal(classifyAction({label:'Xuất file',group:'liquidation'}).format,'csv');
